@@ -4,6 +4,7 @@ import 'mie_ayam.dart';
 import 'sate_ayam.dart';
 import 'keranjang.dart';
 import '../auth/login_page.dart';
+import 'profile_page.dart';  // Import yang benar
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,7 +25,17 @@ class _HomePageState extends State<HomePage> {
 
   void _addToCart(Map<String, dynamic> item) {
     setState(() {
-      cartItems.add(item);
+      int existingIndex =
+          cartItems.indexWhere((element) => element['name'] == item['name']);
+      if (existingIndex >= 0) {
+        cartItems[existingIndex]['quantity'] =
+            (cartItems[existingIndex]['quantity'] ?? 1) + 1;
+      } else {
+        cartItems.add({
+          ...item,
+          'quantity': 1,
+        });
+      }
     });
   }
 
@@ -40,12 +51,12 @@ class _HomePageState extends State<HomePage> {
     List<Widget> pages = [
       _buildHomeContent(),
       CartPage(cartItems: cartItems),
-      Center(child: Text("Akun Saya")),
+      const ProfilePage(),  // Ini yang dari profile_page.dart
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Kotakku"),
+        title: Text("SESI-03"),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -69,7 +80,7 @@ class _HomePageState extends State<HomePage> {
                       shape: BoxShape.circle,
                     ),
                     child: Text(
-                      '${cartItems.length}',
+                      '${cartItems.fold<int>(0, (sum, item) => sum + (item['quantity'] as int? ?? 1))}',
                       style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ),
@@ -84,8 +95,9 @@ class _HomePageState extends State<HomePage> {
         onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Beranda'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Keranjang'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.shopping_cart), label: 'Keranjang'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],
       ),
     );
@@ -103,14 +115,17 @@ class _HomePageState extends State<HomePage> {
 
         /// Nasi Goreng
         GestureDetector(
-          onTap: () async {
-            var result = await Navigator.push(
+          onTap: () {
+            Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => NasiGorengScreen()),
+              MaterialPageRoute(
+                builder: (context) => NasiGorengGalleryScreen(
+                  onAddToCart: (item) {
+                    _addToCart(item);
+                  },
+                ),
+              ),
             );
-            if (result != null && result is Map<String, dynamic>) {
-              _addToCart(result);
-            }
           },
           child: _buildMenuCard("Nasi Goreng", "images/nasi_goreng.jpg"),
         ),

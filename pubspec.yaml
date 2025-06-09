@@ -19,6 +19,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/profil_satu.jpg
-    - images/nasi_goreng.jpg
-    - images/mie_ayam.jpg
-    - images/sate_ayam.jpg
+    - images/
